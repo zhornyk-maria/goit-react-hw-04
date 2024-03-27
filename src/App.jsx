@@ -3,9 +3,12 @@ import { useEffect } from 'react';
 import './App.css';
 import axios from 'axios';
 import SearchBar from './components/SearchBar/SearchBar.jsx';
+import ImageGallery from './components/ImageGallery/ImageGallery.jsx';
 
 function App() {
-  const [images, setImages] = useState(null)
+  const [images, setImages] = useState(null);
+  // const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     async function fetchImages() {
       try {
@@ -21,6 +24,7 @@ function App() {
 
   return (
     <>
+      <ImageGallery {...images} />
       <SearchBar />
     </>
   )
