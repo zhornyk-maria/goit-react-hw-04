@@ -4,6 +4,7 @@ import './App.css';
 import axios from 'axios';
 import SearchBar from './components/SearchBar/SearchBar.jsx';
 import ImageGallery from './components/ImageGallery/ImageGallery.jsx';
+import Loader from './components/Loader/Loader.jsx';
 
 function App() {
   const [images, setImages] = useState(null);
@@ -13,7 +14,7 @@ function App() {
     async function fetchImages() {
       try {
         const response = await axios.get('https://api.unsplash.com/photos/?client_id=OlHWRmKxn7vjqXZKE1jcmlc46V7_l_EZ6-G9ALlu5AU');
-        setImages(response.data.map(image => image.urls));
+        setImages(response.data);
         console.log('data', response);
       } catch (error) {
         console.error('Error fetching images:', error);
@@ -24,7 +25,8 @@ function App() {
 
   return (
     <>
-      <ImageGallery {...images} />
+      <ImageGallery images={images} />
+      <Loader/>
       <SearchBar />
     </>
   )

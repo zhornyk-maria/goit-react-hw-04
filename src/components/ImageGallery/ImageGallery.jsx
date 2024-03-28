@@ -11,7 +11,7 @@ const ImageGallery = ({ images }) => {
                 {images && images.map(image => {
                     return (
                         <li key={image.id}>
-                            <ImageCard {...image} />
+                            <ImageCard image={image} />
                         </li>
                     );
                 })}
