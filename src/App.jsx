@@ -1,33 +1,67 @@
 import { useState } from 'react';
 import { useEffect } from 'react';
 import './App.css';
-import axios from 'axios';
 import SearchBar from './components/SearchBar/SearchBar.jsx';
 import ImageGallery from './components/ImageGallery/ImageGallery.jsx';
 import Loader from './components/Loader/Loader.jsx';
+import ErrorMessage from './components/ErrorMessage/ErrorMessage.jsx';
+import { requestImagesByQuery } from './services/api.js';
+import ImageModal from './components/ImageModal/ImageModal.jsx';
+import LoadMoreBtn from './components/LoadMoreBtn/LoadMoreBtn.jsx';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
-  const [images, setImages] = useState(null);
-  // const [isLoading, setIsLoading] = useState(false);
+  const [images, setImages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [hasMoreImages, setHasMoreImages] = useState(false);
 
   useEffect(() => {
-    async function fetchImages() {
+    if (query.length === 0) return;
+    
+    async function fetchImagesByQuery() {
       try {
-        const response = await axios.get('https://api.unsplash.com/photos/?client_id=OlHWRmKxn7vjqXZKE1jcmlc46V7_l_EZ6-G9ALlu5AU');
-        setImages(response.data);
-        console.log('data', response);
+        setIsLoading(true);
+        const data = await requestImagesByQuery(query, page);
+        setImages(prevImages => [...prevImages, ...data.results]);
+        setIsError(false);
+        setHasMoreImages(data.total_pages > 1);
       } catch (error) {
-        console.error('Error fetching images:', error);
+        setIsError(true);
+        setHasMoreImages(false);
+      } finally { 
+        setIsLoading(false);
       }
     }
-    fetchImages();
-  }, []);
+    fetchImagesByQuery();
+  }, [query, page]);
+
+  const onSetSearchQuery = (searchTerm) => {
+    setQuery(searchTerm);
+    setPage(1);
+    setSelectedImage(null);
+  }
+
+  const onLoadMore = () => {
+    setPage(prevPage => prevPage + 1);
+  }
+
+  const openModal = (image) => {
+      setSelectedImage(image);
+  };
 
   return (
     <>
-      <ImageGallery images={images} />
-      <Loader/>
-      <SearchBar />
+      <Toaster /> 
+      <SearchBar onSetSearchQuery={onSetSearchQuery} />
+      {isError && <ErrorMessage />}
+      {images && <ImageGallery images={images} openModal={openModal}/>}
+      {selectedImage && <ImageModal image={selectedImage} closeModal={() => setSelectedImage(null)} />}
+      {isLoading && <Loader />}
+      {hasMoreImages && <LoadMoreBtn onLoadMore={onLoadMore} hasMoreImages={hasMoreImages} />}
     </>
   )
 }

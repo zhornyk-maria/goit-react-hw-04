@@ -1,17 +1,15 @@
-import { useState } from 'react'; 
+import css from './ImageGallery.module.css';
 import ImageCard from '../ImageCard/ImageCard.jsx';
 
-const ImageGallery = ({ images }) => {
-    const [isLoading, setIsLoading] = useState(false);
+const ImageGallery = ({ images, openModal }) => {
 
     return(
         <>
-            {isLoading && <p>Loading...</p>}
-            <ul>
-                {images && images.map(image => {
+            <ul className={css.gallery}>
+                {Array.isArray(images) && images.map((image) => {
                     return (
-                        <li key={image.id}>
-                            <ImageCard image={image} />
+                        <li key={image.id} className={css.galleryItem}>
+                            <ImageCard image={image} openModal={openModal} />
                         </li>
                     );
                 })}
